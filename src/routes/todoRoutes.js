@@ -3,42 +3,43 @@ import db from '../db.js'
 
 const router = express.Router()
 
-// Get all todos for logged-in user
+// Read
 router.get('/', (req, res) => {
     const getTodos = db.prepare('SELECT * FROM todos WHERE user_id = ?')
     const todos = getTodos.all(req.userId)
-    res.json(todos)
+
+    res.status(200).json(todos)
 })
 
-// Create a new todo
+// Create
 router.post('/', (req, res) => {
-    const { task } = req.body
+    const { task } = req.body // Title
+
     const insertTodo = db.prepare(`INSERT INTO todos (user_id, task) VALUES (?, ?)`)
     const result = insertTodo.run(req.userId, task)
 
-    res.json({ id: result.lastInsertRowid, task, completed: 0 })
+    res.status(201).json({ id: result.lastInsertRowid, task, completed: 0 })
 })
 
-// Update a todo
+// Update
 router.put('/:id', (req, res) => {
     const { completed } = req.body
     const { id } = req.params
 
-    // Add AND user_id = ? to secure this query
     const updatedTodo = db.prepare('UPDATE todos SET completed = ? WHERE id = ? AND user_id = ?')
-    
     updatedTodo.run(completed, id, req.userId)
-    res.json({ message: "Todo completed" })
+
+    res.status(200).json({ message: "Todo completed" })
 })
 
-// Delete a todo
+// Delete
 router.delete('/:id', (req, res) => {
     const { id } = req.params
     
     const deleteTodo = db.prepare(`DELETE FROM todos WHERE id = ? AND user_id = ?`)
     deleteTodo.run(id, req.userId)
     
-    res.send({ message: "Todo deleted" })
+    res.status(200).json({ message: "Todo deleted" })
 })
 
 export default router

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 
+// Matters for the todoRoutes
 function authMiddleware(req, res, next) {
     const token = req.headers['authorization']
     if (!token) 
@@ -9,7 +10,7 @@ function authMiddleware(req, res, next) {
         if (failure) 
             return res.status(401).json({ message: "Invalid token" })
 
-        req.userId = decodedUser.id
+        req.userId = decodedUser.id // If token is valid, give userId to req
         next()
     })
 }
